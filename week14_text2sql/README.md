@@ -6,7 +6,7 @@
 
 ## 준비된 데이터
 
-`../_shared/caramelpopcorn.db`를 그대로 재사용한다(5·6주차와 같은 DB).
+5·6주차와 같은 **Postgres 실습 서버**(`bdai13` 스키마)를 그대로 재사용한다. 접속 방법은 `../week05_sql_aggregation/README.md`의 "방법 A" 참고.
 
 ## 해야 할 일
 

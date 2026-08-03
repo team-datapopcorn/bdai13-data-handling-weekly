@@ -6,7 +6,32 @@
 
 ## 준비된 데이터
 
-`../_shared/caramelpopcorn.db` (SQLite). 다섯 개 테이블: `customers`, `products`, `orders`, `order_items`, `logins`.
+같은 데이터를 두 가지 방식으로 준비해 뒀다. 실습은 **Postgres 실습 서버** 기준으로 진행한다 — 여러 사람이 같은 서버에 접속해 쿼리하는, 실제 현업에 가장 가까운 형태다.
+
+### 방법 A — Postgres 실습 서버 (추천)
+
+가상 온라인 스토어 데이터가 공용 Postgres에 올라가 있다. 설치 없이 Colab에서 바로 접속한다. 계정은 **읽기 전용**(SELECT만 가능)이라 실수로 데이터를 바꿀 걱정이 없다.
+
+```python
+!pip install psycopg2-binary -q
+import psycopg2, pandas as pd
+
+conn = psycopg2.connect(
+    host="aws-1-us-east-1.pooler.supabase.com",
+    port=6543,
+    dbname="postgres",
+    user="bdai13_student.ihenzvyxmlqmfrwjeknd",
+    password="<수업 공지 확인>",
+    sslmode="require",
+)
+pd.read_sql("SELECT * FROM bdai13.orders LIMIT 5", conn)
+```
+
+> 테이블 이름 앞에 항상 `bdai13.`을 붙인다(스키마 이름). 다섯 개 테이블: `bdai13.customers`, `bdai13.products`, `bdai13.orders`, `bdai13.order_items`, `bdai13.logins`.
+
+### 방법 B — 로컬 SQLite (오프라인/보조용)
+
+`../_shared/caramelpopcorn.db`. 같은 스키마, 데이터 구성만 다르다(연습용 재현성 때문에 별도 생성).
 
 ```python
 import sqlite3, pandas as pd

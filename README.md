@@ -4,6 +4,23 @@ BDAI 13기 정규반 "데이터분석 실전반 — 데이터 핸들링과 자�
 
 전부 가상 데이터입니다. 가상 온라인 스토어 **카라멜팝콘**(팝콘·음료·스낵·굿즈 판매)을 기준으로 고객·주문·로그인 기록을 만들었습니다. 실제 인물·거래·금액이 아닙니다.
 
+## SQL 실습 서버 (5·6·14주)
+
+로컬 SQLite 말고 실제로 여러 사람이 접속해 쿼리하는 **Postgres 실습 서버**를 운영합니다(Supabase, `bdai13` 스키마). 계정은 읽기 전용이라 데이터를 실수로 바꿀 걱정이 없습니다.
+
+```python
+!pip install psycopg2-binary -q
+import psycopg2, pandas as pd
+conn = psycopg2.connect(
+    host="aws-1-us-east-1.pooler.supabase.com", port=6543,
+    dbname="postgres", user="bdai13_student.ihenzvyxmlqmfrwjeknd",
+    password="<수업 공지 확인>", sslmode="require",
+)
+pd.read_sql("SELECT * FROM bdai13.orders LIMIT 5", conn)
+```
+
+테이블 앞에 항상 `bdai13.`을 붙입니다. 자세한 사용법은 `week05_sql_aggregation/README.md`.
+
 ## 구조
 
 한 주차 = 한 폴더. 폴더 안 `README.md`에 그 주에 **무엇이 준비되어 있고, 무엇을 해야 하는지**를 정의합니다.

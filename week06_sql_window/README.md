@@ -6,11 +6,11 @@
 
 ## 준비된 데이터
 
-`../_shared/caramelpopcorn.db`의 `logins`(고객별 로그인 기록)와 `customers`, `orders`를 함께 쓴다.
+5주차와 같은 **Postgres 실습 서버**(`bdai13` 스키마)의 `logins`(고객별 로그인 기록)와 `customers`, `orders`를 함께 쓴다. 접속 방법은 `../week05_sql_aggregation/README.md`의 "방법 A" 그대로(로컬 SQLite를 쓰고 싶으면 "방법 B").
 
 ## 해야 할 일
 
-1. **가입 코호트별 재방문(리텐션) 쿼리를 AI에게 시킨다** — "고객이 가입한 달을 기준으로, 가입 후 1개월·2개월·3개월 시점에 다시 로그인한 비율을 구해줘." `julianday`/`strftime` 같은 SQLite 날짜 함수가 등장한다.
+1. **가입 코호트별 재방문(리텐션) 쿼리를 AI에게 시킨다** — "고객이 가입한 달을 기준으로, 가입 후 1개월·2개월·3개월 시점에 다시 로그인한 비율을 구해줘." `date_trunc`, `age()`, `interval` 같은 Postgres 날짜 함수가 등장한다(SQLite로 하면 `julianday`/`strftime`).
 2. **서브쿼리로 세그먼트를 나눈다** — "주문을 3건 이상 한 고객"과 "1건도 안 한 고객"을 서브쿼리로 나눠 지역별 분포를 비교한다.
 3. **윈도우 함수로 고객별 순위·누적을 구한다** — `ROW_NUMBER()`, `SUM() OVER (PARTITION BY ...)`로 "고객별 첫 주문일", "고객별 누적 매출"을 만든다.
 4. **AI가 틀리는 전형적인 지점을 확인한다.**
