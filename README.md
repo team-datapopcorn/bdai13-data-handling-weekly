@@ -27,7 +27,8 @@ pd.read_sql("SELECT * FROM bdai13.orders LIMIT 5", conn)
 
 | 폴더 | 주차 | 핵심 개념 | 데이터 |
 |---|---|---|---|
-| [`_shared/`](_shared/) | 5·6·14주 공용 | — | `caramelpopcorn.db` (SQLite, 고객·상품·주문·주문항목·로그인 5개 테이블) |
+| [`project_pokeapi/`](project_pokeapi/) | 종합 프로젝트 | PokeAPI 데이터 파이프라인 & 대시보드 | `pokemon_all.parquet`, `pokemon.db`, `pokemon.duckdb` (1,025마리 전수 수집본) |
+| [`_shared/`](_shared/) | 5·6·14주 공용 | — | `caramelpopcorn.db` (온라인 스토어 5개 테이블), `pokemon.db`, `pokemon_all.parquet` |
 | [`week05_sql_aggregation/`](week05_sql_aggregation/) | 5주 | SQL ① 집계, AI 쿼리를 읽고 검증 | `_shared/caramelpopcorn.db` |
 | [`week06_sql_window/`](week06_sql_window/) | 6주 | SQL ② 윈도우 함수·서브쿼리 | `_shared/caramelpopcorn.db` |
 | [`week07_vectorization/`](week07_vectorization/) | 7주 | 벡터화 vs 반복문 | `transactions_large.csv` (30만행) |
@@ -59,6 +60,13 @@ python generate.py
 - **orders** — `order_id`, `customer_id`, `order_date`, `order_total`
 - **order_items** — `item_id`, `order_id`, `product_id`, `qty`, `unit_price`
 - **logins** — `login_id`, `customer_id`, `login_date` (6주차 리텐션 분석용 세션 로그)
+
+## 종합 프로젝트: PokeAPI 실습 데이터
+
+16주 과정을 관통하는 종합 실습 프로젝트 데이터로 [`project_pokeapi/`](project_pokeapi/) 폴더에 제공됩니다.
+- **수집 대상**: 1~9세대 전국도감 1,025마리 전수 수집본
+- **제공 포맷**: `pokemon_all.parquet`, `pokemon_all.csv`, `pokemon_gen1.parquet`, `pokemon_gen1.csv`, `pokemon.db` (SQLite 관계형 테이블), `pokemon.duckdb`
+- **활용 목적**: 중첩 JSON 언네스팅 파이프라인(ETL), 세대별 파워 인플레이션 가설 검증, 속성별 공방 밸런스 분석, 체격-스피드 상관관계 및 이상치 탐색, K-Means 배틀 역할군 클러스터링, **포켓몬 도감 데이터 대시보드** 구축.
 
 ## 라이선스
 
