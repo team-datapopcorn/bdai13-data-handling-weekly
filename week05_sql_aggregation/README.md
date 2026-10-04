@@ -170,3 +170,17 @@ pd.read_sql_query("SELECT * FROM orders LIMIT 5", con)
 - [ ] SQL 집계 합계 = pandas 집계 합계
 - [ ] 조인 후 행 수가 기대한 범위인가(부풀려지지 않았는가)
 - [ ] `NULL`이 있는 컬럼을 집계에서 빠뜨리지 않았는가
+
+## 선택 실습 — 준비된 5개 테이블 직접 적재
+
+공용 계정은 읽기 전용입니다. 개인 SQLite에 고객·상품·주문·주문항목·로그인을 모두 적재해 보세요.
+
+[전체 테이블 적재 Colab 바로 열기](https://colab.research.google.com/github/team-datapopcorn/bdai13-data-handling-weekly/blob/master/week05_sql_aggregation/05_load_all_tables_colab.ipynb) · [DBeaver 단계별 안내 및 통합 SQL 다운로드](https://bdai13-data-handling.vercel.app/ch05#load-all-tables)
+
+| 순서 | 파일 | 원본 행 수 |
+|---|---|---|
+| 1 | `insert_customers.sql` | 400 |
+| 2 | `insert_products.sql` | 10 |
+| 3 | `insert_orders.sql` | 713 |
+| 4 | `insert_order_items.sql` | 1782 |
+| 5 | `insert_logins.sql` | 1953 |
