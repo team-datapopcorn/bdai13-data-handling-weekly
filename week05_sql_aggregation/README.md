@@ -1,153 +1,65 @@
-# 5주차 · SQL ① 집계 — AI 쿼리를 읽고 검증한다
+# 5주차 · 본인 Supabase Postgres에서 SQL 집계와 검증
 
-## 오늘 얻어가는 것
+오늘부터 가상 온라인 스토어 카라멜팝콘 데이터를 사용합니다. 각자 자신의 Supabase 프로젝트에 원본 SQL 5개를 입력하고, 같은 DB에서 SQL과 pandas 결과를 대조합니다.
 
-분석 질문을 SQL 집계 쿼리로 바꾸는 걸 AI에게 시키고, 그 결과가 맞는지 직접 확인한다.
-1~4주의 공공데이터 수집에 이어, **오늘부터 가상 온라인 스토어 ‘카라멜팝콘’ 데이터**를 사용한다. 실제 고객 정보가 아닌 수업용 가상데이터다.
+## 1. 프로젝트 생성과 데이터 적재
 
-## 실습 방법 선택
+[교안의 단계별 안내](https://bdai13-data-handling.vercel.app/ch05#load-all-tables)를 따라 본인 Supabase 프로젝트를 생성합니다. SQL Editor에서 [전체 테이블 생성·적재 SQL](caramelpopcorn_postgres_setup.sql)의 내용을 한 번 실행합니다.
 
-| 방법 | 준비 | 용도 |
+개별 실행을 원하면 [테이블 생성 SQL](00_create_tables_postgres.sql)을 먼저 실행한 뒤 아래 순서를 따릅니다. 원본의 `bdai13.`을 제거하지 않습니다.
+
+| 순서 | 원본 SQL | 예상 행 수 |
 |---|---|---|
-| DBeaver Community | 프로그램 설치 | 테이블을 눈으로 확인하고 SQL 실행 |
-| Google Colab | 구글 계정·브라우저 | SQL 실행 + pandas로 결과 검증 |
+| 1 | [insert_customers.sql](../insert_customers.sql) | 400 |
+| 2 | [insert_products.sql](../insert_products.sql) | 10 |
+| 3 | [insert_orders.sql](../insert_orders.sql) | 713 |
+| 4 | [insert_order_items.sql](../insert_order_items.sql) | 1782 |
+| 5 | [insert_logins.sql](../insert_logins.sql) | 1953 |
 
-두 방법 모두 **같은 공용 Postgres 서버**에 접속한다. DBeaver에서 쿼리를 만들고 Colab에서 검증해도 된다. 계정은 읽기 전용이며, 비밀번호는 수업 중 강사가 안내한다.
+빈 연습 스키마에서 한 번 실행합니다. 기존 테이블이나 고객 ID가 있으면 먼저 COUNT로 상태를 확인하고 INSERT를 반복하지 않습니다. 외래 키가 고객·주문·상품 연결을 검증합니다. 통합 SQL은 오류 시 전체 rollback됩니다.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/team-datapopcorn/bdai13-data-handling-weekly/blob/master/week05_sql_aggregation/05_sql_aggregation_colab.ipynb)
+## 2. DBeaver 설치·접속
 
-## 방법 A — DBeaver 설치와 접속
+[무료 DBeaver Community](https://dbeaver.io/download/)를 설치합니다. Windows는 CPU에 맞는 EXE, Mac은 Apple Silicon·Intel에 맞는 DMG를 선택하고 Applications로 옮깁니다.
 
-### 1. 무료 Community 버전 설치
+1. 본인 Supabase 프로젝트의 **Connect → Session pooler**를 엽니다.
+2. DBeaver → New Database Connection → PostgreSQL. Connect 창의 Host·Port·Database·User를 그대로 입력합니다. Host는 프로젝트마다 다릅니다.
+3. Password는 본인 Database password, SSL mode는 `require`입니다. Session pooler의 포트는 일반적으로 5432이며 Connect 창의 값을 사용합니다.
+4. Test Connection → 드라이버 다운로드 → Finish.
+5. SQL Editor에서 `SELECT current_database(), current_user;`로 접속 확인.
+6. 아직 적재하지 않았다면 통합 SQL 파일을 열어 본인 연결에서 **Execute SQL Script**로 전체 실행합니다. 이미 적재했다면 SELECT부터 시작합니다.
 
-[공식 다운로드 페이지](https://dbeaver.io/download/)에서 운영체제에 맞는 **DBeaver Community**를 선택한다.
+공식 참고: [Supabase DB 연결](https://supabase.com/docs/guides/database/connecting-to-postgres), [DBeaver SQL 실행](https://dbeaver.com/docs/dbeaver/SQL-Execution/).
 
-- **Windows:** CPU에 맞는 EXE 설치 파일을 실행하고 설치 마법사를 따른다. 일반적인 Intel·AMD PC는 x86 버전을 선택한다.
-- **macOS:** Apple Silicon(M1 이후) 또는 Intel에 맞는 DMG를 받는다. DMG를 열고 DBeaver를 Applications(응용 프로그램) 폴더로 끌어 넣은 뒤 실행한다.
+## 3. Colab에서 본인 DB에 적재·분석
 
-### 2. PostgreSQL 연결 만들기
+- [전체 적재 Colab](https://colab.research.google.com/github/team-datapopcorn/bdai13-data-handling-weekly/blob/master/week05_sql_aggregation/05_load_all_tables_colab.ipynb): 프로젝트 접속 → 테이블 생성 → 원본 INSERT 5개 → 건수 검증.
+- [SQL 집계·pandas 검증 Colab](https://colab.research.google.com/github/team-datapopcorn/bdai13-data-handling-weekly/blob/master/week05_sql_aggregation/05_sql_aggregation_colab.ipynb): 적재가 끝난 같은 본인 DB로 분석.
 
-1. DBeaver 실행 → **새 데이터베이스 연결(New Database Connection)** → **PostgreSQL** 선택.
-2. 아래 접속 정보를 입력한다.
-
-| 항목 | 값 |
-|---|---|
-| Host | `aws-1-us-east-1.pooler.supabase.com` |
-| Port | `6543` |
-| Database | `postgres` |
-| Username | `bdai13_student.ihenzvyxmlqmfrwjeknd` |
-| Password | 수업 중 안내하는 비밀번호 |
-| SSL | 사용함, Mode `require` |
-
-3. **SSL** 탭에서 SSL 사용을 켜고 Mode를 `require`로 설정한다. 버전에 따라 Driver properties의 `sslmode`에서 설정할 수 있다.
-4. **Test Connection(연결 테스트)**을 누른다. PostgreSQL 드라이버 다운로드 창이 나오면 다운로드한다.
-5. 연결 성공을 확인한 뒤 **Finish(완료)**를 누른다.
-
-공식 참고: [연결 생성 안내](https://dbeaver.com/docs/dbeaver/Create-Connection/).
-
-### 3. 첫 SQL 실행
-
-만든 연결을 우클릭 → **SQL Editor → New SQL Script**를 연다. 아래 쿼리를 붙여 넣고 선택한 뒤 도구 모음의 SQL 실행 버튼을 누른다.
+파일 → Drive에 사본 저장 후 실행합니다. Connect → Session pooler의 Host·Port·User를 입력하고 본인 DB 비밀번호는 getpass 입력창으로 받습니다. API key와 DB 비밀번호는 다릅니다. 생성·INSERT 셀은 한 번만 실행하며 이미 적재했다면 건너뜁니다.
 
 ```sql
-SELECT * FROM bdai13.orders LIMIT 5;
+SELECT 'customers' AS table_name, COUNT(*) AS row_count FROM bdai13.customers
+UNION ALL
+SELECT 'products' AS table_name, COUNT(*) AS row_count FROM bdai13.products
+UNION ALL
+SELECT 'orders' AS table_name, COUNT(*) AS row_count FROM bdai13.orders
+UNION ALL
+SELECT 'order_items' AS table_name, COUNT(*) AS row_count FROM bdai13.order_items
+UNION ALL
+SELECT 'logins' AS table_name, COUNT(*) AS row_count FROM bdai13.logins;
 ```
 
-**주문 5행이 보이면 준비 완료.** 왼쪽 탐색기에서는 연결 → Schemas → `bdai13` → Tables를 펼친다. 다른 스키마 이름이 보이더라도 수업에서는 `bdai13`만 사용한다.
+SQL에서는 `bdai13.customers`, `bdai13.products`, `bdai13.orders`, `bdai13.order_items`, `bdai13.logins`를 사용합니다. 생성문은 RLS를 활성화하며, 적재는 본인 프로젝트의 postgres 계정으로 실행합니다. 수업은 직접 DB 연결이므로 bdai13을 Data API 노출 스키마에 추가할 필요가 없습니다.
 
-## 방법 B — 설치 없이 Google Colab
+## 접속·적재 오류
 
-### 1. 실습 노트북 열기
-
-[5주차 Colab 노트북 바로 열기](https://colab.research.google.com/github/team-datapopcorn/bdai13-data-handling-weekly/blob/master/week05_sql_aggregation/05_sql_aggregation_colab.ipynb) → 구글 계정 로그인 → **파일 → Drive에 사본 저장**으로 자신의 실습본을 만든다. 위에서 아래로 셀의 ▶ 버튼을 눌러 실행한다.
-
-### 2. 라이브러리 설치
-
-```python
-!pip install psycopg2-binary -q
-```
-
-### 3. 접속하고 주문 5행 확인
-
-```python
-from getpass import getpass
-import psycopg2
-import pandas as pd
-
-conn = psycopg2.connect(
-    host="aws-1-us-east-1.pooler.supabase.com",
-    port=6543,
-    dbname="postgres",
-    user="bdai13_student.ihenzvyxmlqmfrwjeknd",
-    password=getpass("수업에서 안내한 비밀번호: "),
-    sslmode="require",
-    connect_timeout=15,
-)
-conn.autocommit = True
-
-def query(sql):
-    with conn.cursor() as cur:
-        cur.execute(sql)
-        return pd.DataFrame(cur.fetchall(), columns=[col[0] for col in cur.description])
-
-query("SELECT * FROM bdai13.orders LIMIT 5")
-```
-
-비밀번호 입력창에 수업에서 안내한 값을 입력한다. 코드나 출력에 비밀번호를 적지 않는다. 주문 5행이 보이면 준비 완료다.
-
-### 4. SQL 실행과 pandas 검증
-
-```python
-# AI가 만든 SELECT 쿼리를 따옴표 안에 넣는다.
-sql = """
-SELECT COUNT(*) AS order_count
-FROM bdai13.orders
-"""
-query(sql)
-
-# 같은 서버에서 읽은 원본을 pandas로 검증한다.
-orders = query("SELECT * FROM bdai13.orders")
-print("pandas 주문 건수:", len(orders))
-```
-
-노트북에 테이블 구조 확인, 집계 쿼리 3개를 넣을 자리, pandas 검증 예시와 제출 체크리스트가 들어 있다. 런타임이 초기화되면 설치·접속 셀부터 다시 실행한다. 수업을 마치면 `conn.close()`로 연결을 닫는다.
-
-## 오늘 사용할 테이블
-
-테이블 이름 앞에 항상 **`bdai13.`**을 붙인다.
-
-| 테이블 | 내용 |
-|---|---|
-| `bdai13.customers` | 고객·지역 |
-| `bdai13.products` | 상품·카테고리 |
-| `bdai13.orders` | 주문·주문일·주문 금액 |
-| `bdai13.order_items` | 주문별 상품·수량·단가 |
-| `bdai13.logins` | 고객 로그인 이력 |
-
-고객 1명 → 주문 여러 건, 주문 1건 → 주문항목 여러 행이다. 주문항목을 붙인 뒤 주문 금액을 단순 합산하면 같은 주문 금액이 반복되어 매출이 부풀려질 수 있다. 실제 컬럼은 접속 후 확인한다.
-
-## 접속이 안 될 때
-
-| 증상 | 먼저 확인 |
-|---|---|
-| 비밀번호 인증 실패 | 수업 비밀번호·Username을 다시 확인하고 앞뒤 공백 제거 |
-| 연결 시간 초과 | Host·Port·인터넷 연결 확인. 학교·회사망이면 다른 네트워크에서 재시도 |
-| SSL 관련 오류 | SSL 사용 및 `sslmode=require` 확인 |
-| 테이블을 찾을 수 없음 | `orders` 대신 `bdai13.orders` 사용 |
-| SQL 오류 후 Colab 실행 실패 | 접속 셀 재실행 후 수정한 SELECT 실행 |
-
-## 보조용 SQLite
-
-서버 접속이 어려울 때는 [카라멜팝콘 SQLite 다운로드](../_shared/caramelpopcorn.db)를 사용할 수 있다. DBeaver에서 SQLite 연결을 만들고 다운받은 파일을 선택하거나, Colab 왼쪽 파일 탭에 업로드한 뒤 아래 코드를 실행한다.
-
-```python
-import sqlite3
-import pandas as pd
-con = sqlite3.connect("/content/caramelpopcorn.db")  # Colab 업로드 파일
-pd.read_sql_query("SELECT * FROM orders LIMIT 5", con)
-```
-
-로컬에서 주차 폴더를 기준으로 실행할 때 경로는 `../_shared/caramelpopcorn.db`다. SQLite에는 `bdai13.`을 붙이지 않는다. Postgres와 스키마는 같지만 **별도 생성한 데이터**이므로 두 환경의 합계를 서로 대조하지 않는다. SQL과 pandas는 반드시 같은 원본으로 검증한다. 날짜 함수 등 SQL 문법도 DB에 따라 다를 수 있다.
+- 인증 실패: 본인 DB 비밀번호와 Session pooler User 확인. 공용 수업 비밀번호·API key가 아닙니다.
+- timeout: 프로젝트 실행 상태, Host·Port·SSL 확인. IPv4 환경은 Session pooler를 사용합니다.
+- relation does not exist: 테이블 생성 후 `bdai13.` 접두어 사용.
+- duplicate key / already exists: 기존 건수 확인. INSERT 반복 실행 금지.
+- foreign key violation: 고객·상품 → 주문 → 주문항목·로그인 순서 확인.
+- transaction is aborted: Rollback 후 상태 확인. Colab 적재 셀은 자동 rollback합니다.
 
 ## 해야 할 일
 
@@ -171,16 +83,3 @@ pd.read_sql_query("SELECT * FROM orders LIMIT 5", con)
 - [ ] 조인 후 행 수가 기대한 범위인가(부풀려지지 않았는가)
 - [ ] `NULL`이 있는 컬럼을 집계에서 빠뜨리지 않았는가
 
-## 선택 실습 — 준비된 5개 테이블 직접 적재
-
-공용 계정은 읽기 전용입니다. 개인 SQLite에 고객·상품·주문·주문항목·로그인을 모두 적재해 보세요.
-
-[전체 테이블 적재 Colab 바로 열기](https://colab.research.google.com/github/team-datapopcorn/bdai13-data-handling-weekly/blob/master/week05_sql_aggregation/05_load_all_tables_colab.ipynb) · [DBeaver 단계별 안내 및 통합 SQL 다운로드](https://bdai13-data-handling.vercel.app/ch05#load-all-tables)
-
-| 순서 | 파일 | 원본 행 수 |
-|---|---|---|
-| 1 | `insert_customers.sql` | 400 |
-| 2 | `insert_products.sql` | 10 |
-| 3 | `insert_orders.sql` | 713 |
-| 4 | `insert_order_items.sql` | 1782 |
-| 5 | `insert_logins.sql` | 1953 |
