@@ -82,4 +82,3 @@ SQL에서는 `bdai13.customers`, `bdai13.products`, `bdai13.orders`, `bdai13.ord
 - [ ] SQL 집계 합계 = pandas 집계 합계
 - [ ] 조인 후 행 수가 기대한 범위인가(부풀려지지 않았는가)
 - [ ] `NULL`이 있는 컬럼을 집계에서 빠뜨리지 않았는가
-
